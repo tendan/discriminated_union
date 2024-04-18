@@ -45,13 +45,15 @@ public:
     // This function can be used to pass through a successful result while handling an mError.
     // https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err
     template<class F>
-    Result<T, F> mapErr(std::function<F(E)> fn) const;
+    Result<T, F>&& mapErr(std::function<F(E)> fn) const;
 
     // Returns the provided default (if Err), or applies a function to the contained mValue (if Ok).
     // https://doc.rust-lang.org/std/result/enum.Result.html#method.map_or
     template<class U>
     U mapOr(U defaultValue, std::function<U(T)> fn) const;
 
+
+    bool operator==(Result<T, E> other) const;
 };
 
 #endif

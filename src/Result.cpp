@@ -44,6 +44,17 @@ U Result<T, E>::mapOr(U defaultValue, std::function<U(T)> fn) const {
 
 template<class T, class E>
 template<class F>
-Result<T, F> Result<T, E>::mapErr(std::function<F(E)> fn) const {
+Result<T, F>&& Result<T, E>::mapErr(std::function<F(E)> fn) const {
+    switch (mResultType) {
+        case VALUE: return std::move(this);
+        case ERROR: return std::move(Result<T, F>(fn(mError)));
+    }
+}
 
+template<class T, class E>
+bool Result<T, E>::operator==(Result<T, E> other) const {
+    switch (mResultType) {
+        case VALUE: return mValue == other.mValue;
+        case ERROR: return mError == other.mError;
+    }
 }
