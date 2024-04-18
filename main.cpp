@@ -26,17 +26,6 @@ Result<int, const char*> parseInt(const std::basic_string<char>& stringToParse) 
 }
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-
-    std::cout << "Wprowadź liczbę (od 1 do 3): ";
-    std::string sequence;
-    std::cin >> sequence;
-
-    int value = parseInt(sequence).unwrapOr(-1);
-
-    auto result = dummy_with_error(value);
-
-    std::cout << result.unwrapOr(10) << std::endl;
-
+    
     return 0;
 }
