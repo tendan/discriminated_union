@@ -10,15 +10,19 @@
 template<class T, class E>
 class Result {
 private:
-    enum ResultType{VALUE, ERROR} mResultType;
-    union{
+    enum ResultType {
+        VALUE, ERROR
+    } mResultType;
+    union {
         T mValue;
         E mError;
     };
     //ResultField mResultField;
 public:
     Result(T value) : mValue(value), mResultType(VALUE) {}
+
     Result(E error) : mError(error), mResultType(ERROR) {}
+
     virtual ~Result() {};
 
     bool isOk() const;
@@ -52,6 +56,10 @@ public:
     template<class U>
     U mapOr(U defaultValue, std::function<U(T)> fn) const;
 
+    // Maps a Result<T, E> to U by applying fallback function default to a contained Err value, or function f to a contained Ok value.
+    // https://doc.rust-lang.org/std/result/enum.Result.html#method.map_or_else
+    template<class U>
+    U mapOrElse(std::function<U(E)> defaultFn, std::function<U(T)> valueFn) const;
 
     bool operator==(Result<T, E> other) const;
 };

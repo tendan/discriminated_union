@@ -52,6 +52,15 @@ Result<T, F>&& Result<T, E>::mapErr(std::function<F(E)> fn) const {
 }
 
 template<class T, class E>
+template<class U>
+U Result<T, E>::mapOrElse(std::function<U(E)> defaultFn, std::function<U(T)> valueFn) const {
+    switch (mResultType) {
+        case VALUE: return valueFn(mValue);
+        case ERROR: return defaultFn(mError);
+    }
+}
+
+template<class T, class E>
 bool Result<T, E>::operator==(Result<T, E> other) const {
     switch (mResultType) {
         case VALUE: return mValue == other.mValue;

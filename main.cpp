@@ -26,6 +26,6 @@ Result<int, const char*> parseInt(const std::basic_string<char>& stringToParse) 
 }
 
 int main() {
-    
+
     return 0;
 }
