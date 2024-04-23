@@ -6,6 +6,17 @@
 #endif
 
 #include <functional>
+#include <variant>
+
+/*template<class T, class E>
+union ResultField {
+    T mValue;
+    E mError;
+    ResultField(T value) : mValue(value) {}
+    ResultField(E error) : mError(error) {}
+    ResultField(const ResultField<T, E>& other) = default;
+    ~ResultField() {}
+};*/
 
 template<class T, class E>
 class Result {
@@ -13,17 +24,19 @@ private:
     enum ResultType {
         VALUE, ERROR
     } mResultType;
-    union {
-        T mValue;
-        E mError;
-    };
-    //ResultField mResultField;
+
+    std::variant<T, E> mResultField;
+
+    T getValue() const;
+    E getError() const;
 public:
-    Result(T value) : mValue(value), mResultType(VALUE) {}
+    Result(T value) : mResultField(value), mResultType(VALUE) {}
 
-    Result(E error) : mError(error), mResultType(ERROR) {}
+    Result(E error) : mResultField(error), mResultType(ERROR) {}
 
-    virtual ~Result() {};
+    Result(const Result<T, E>& other) : mResultType(other.mResultType), mResultField(other.mResultField) {};
+
+    virtual ~Result() = default;
 
     bool isOk() const;
 
@@ -43,13 +56,13 @@ public:
     // This function can be used to compose the results of two functions.
     // https://doc.rust-lang.org/std/result/enum.Result.html#method.map
     template<class U>
-    Result<U, E>&& map(std::function<U(T)> fn) const;
+    Result<U, E> map(std::function<U(T)> fn) const;
 
     // Maps a Result<T, E> to Result<T, F> by applying a function to a contained Err mValue, leaving an Ok mValue untouched.
     // This function can be used to pass through a successful result while handling an mError.
     // https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err
     template<class F>
-    Result<T, F>&& mapErr(std::function<F(E)> fn) const;
+    Result<T, F> mapErr(std::function<F(E)> fn) const;
 
     // Returns the provided default (if Err), or applies a function to the contained mValue (if Ok).
     // https://doc.rust-lang.org/std/result/enum.Result.html#method.map_or
