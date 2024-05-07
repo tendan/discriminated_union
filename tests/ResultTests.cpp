@@ -59,6 +59,63 @@ BOOST_AUTO_TEST_CASE(ResultMap_WhenError_ThenDoesNothingWithResult)
     BOOST_CHECK_EQUAL(actual.unwrapOr(0), 0);
 }
 
+BOOST_AUTO_TEST_CASE(ResultMapOr_WhenValue_ThenMapsItAndReturnsNewValue)
+{
+   std::function<int(int)> fn = [](int val) { return val * val; };
+   Result<int, std::string> result(5);
+   int actual = result.mapOr(3, fn);
+   BOOST_CHECK_EQUAL(actual, 25);
+}
+
+BOOST_AUTO_TEST_CASE(ResultMapOr_WhenError_ThenReturnsDefaultValueProvided)
+{
+    std::function<int(int)> fn = [](int val) { return val * val; };
+    Result<int, std::string> result("Failed to parse a number");
+    int actual = result.mapOr(3, fn);
+    BOOST_CHECK_EQUAL(actual, 3);
+}
+
+BOOST_AUTO_TEST_CASE(ResultMapErr_WhenValue_ThenDoesNothingWithResult)
+{
+    std::function<char(std::string)> fn = [](const std::string& err) { return err[0]; };
+    Result<int, std::string> result(3);
+    Result<int, char> actual = result.mapErr(fn);
+    BOOST_ASSERT(actual.isOk());
+    BOOST_CHECK_EQUAL(actual.unwrapOr(0), 3);
+}
+
+BOOST_AUTO_TEST_CASE(ResultMapErr_WhenError_ThenMapsItAndReturnsNewResult)
+{
+    std::function<char(std::string)> fn = [](const std::string& err) { return err[0]; };
+    Result<int, std::string> result("Failed to parse a number");
+    Result<int, char> actual = result.mapErr(fn);
+    BOOST_ASSERT(actual.isError());
+    Result expected = Result<int, char>('F');
+    BOOST_CHECK(actual == expected);
+}
+
+BOOST_AUTO_TEST_CASE(ResultMapOrElse_WhenValue_ThenMapsItAndReturnsNewValue)
+{
+    std::function<int(std::string)> errFn = [](const std::string& err) { return 0; };
+    std::function<int(int)> valFn = [](int val) { return val * 2; };
+    Result<int, std::string> result(5);
+    BOOST_ASSERT(result.isOk());
+    int actual = result.mapOrElse(errFn, valFn);
+    int expected = 10;
+    BOOST_CHECK(actual == expected);
+}
+
+BOOST_AUTO_TEST_CASE(ResultMapOrElse_WhenError_ThenMapsItAndReturnsNewValue)
+{
+    std::function<int(std::string)> errFn = [](const std::string& err) { return 0; };
+    std::function<int(int)> valFn = [](int val) { return val * 2; };
+    Result<int, std::string> result("Failed to parse a number");
+    BOOST_ASSERT(result.isError());
+    int actual = result.mapOrElse(errFn, valFn);
+    int expected = 0;
+    BOOST_CHECK(actual == expected);
+}
+
 BOOST_AUTO_TEST_CASE(ResultEqualOp_WhenEqualForValues_ThenRetursFalse)
 {
     Result<int, void*> result1(5);
