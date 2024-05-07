@@ -39,7 +39,7 @@ template<class U>
 Result<U, E> Result<T, E>::map(std::function<U(T)> fn) const {
     switch (mResultType) {
         case VALUE: return Result<U, E>(fn(getValue()));
-        default: return *this; // Compile warning evade
+        default: return Result<U, E>(getError()); // Compile warning evade
     }
 }
 
@@ -56,7 +56,7 @@ template<class T, class E>
 template<class F>
 Result<T, F> Result<T, E>::mapErr(std::function<F(E)> fn) const {
     switch (mResultType) {
-        case VALUE: return *this;
+        case VALUE: return Result<T, F>(getValue());
         default: return Result<T, F>(fn(getError())); // Compile warning evade
     }
 }
